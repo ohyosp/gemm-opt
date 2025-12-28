@@ -46,7 +46,15 @@ void gemm_cpu_o0(float *A, float *B, float *C, int M, int N, int K) {
 // flags. So, you can use o3's code for that part
 
 // o1: optimal loop ordering
-void gemm_cpu_o1(float *A, float *B, float *C, int M, int N, int K) {}
+void gemm_cpu_o1(float *A, float *B, float *C, int M, int N, int K) {
+  for (int i = 0; i < M; i++) {
+    for (int k = 0; k < K; k++) {
+      for (int j = 0; j < N; j++) {
+        C[i * N + j] += A[i * K + k] * B[k * N + j];
+      }
+    }
+  }
+}
 
 // o2: loop tiling
 void gemm_cpu_o2(float *A, float *B, float *C, int M, int N, int K) {}
@@ -79,13 +87,13 @@ int main(int argc, char *argv[]) {
   float *refC = new float[Ref::M * Ref::N]();
   auto ref = Ref();
   CHECK(gemm_cpu_o0)
-  // CHECK(gemm_cpu_o1)
+  CHECK(gemm_cpu_o1)
   // CHECK(gemm_cpu_o2)
   // CHECK(gemm_cpu_o3)
   delete[] refC;
 
   TIME(gemm_cpu_o0)
-  // TIME(gemm_cpu_o1)
+  TIME(gemm_cpu_o1)
   // TIME(gemm_cpu_o2)
   // TIME(gemm_cpu_o3)
 
